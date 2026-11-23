@@ -52,3 +52,17 @@ function main(): void {
 }
 
 main();
+
+// Post-write verification: read entry.txt back from disk and confirm it is
+// byte-for-byte identical to ROAST and still passes validateEntry. This
+// catches a truncated write, an encoding slip, or a stray newline before
+// the entry ever leaves this machine.
+import { readFileSync } from "node:fs";
+
+const __verificationDir = resolveOutputDir();
+const __verificationPath = join(__verificationDir, "entry.txt");
+const __writtenEntry = readFileSync(__verificationPath, "utf8");
+if (__writtenEntry !== ROAST) {
+  throw new Error("entry.txt does not match ROAST byte-for-byte");
+}
+validateEntry(__writtenEntry);
